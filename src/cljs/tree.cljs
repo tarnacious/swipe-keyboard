@@ -53,11 +53,8 @@
           (zip/root (zip/append-child tree [:meta :end])))))))
 
 (defn string-to-words [s]
-  "Converts string to collection of words"
-  (let [split (seq (.split (.join (.split s " ") "\n") "\n"))
-       words (filter (fn [w] (not= (.-length w) 0)) split)
-       trimmed (map (fn [w] (.trim w)) words)]
-    trimmed))
+  (let [re (js/RegExp. "\\S+" "g")]
+    (seq (.match s re))))
         
 (defn build-tree-int [root-tree all-words]
   "Build an index from a string of words. Returns a channel imediately and puts
