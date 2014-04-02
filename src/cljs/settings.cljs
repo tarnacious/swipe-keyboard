@@ -1,4 +1,4 @@
-(ns swipe.settings) 
+(ns swipe.settings)
 
 ; Canvas width
 (def width 800)
@@ -8,11 +8,15 @@
 (def step-y (/ width 10))
 
 ; Key font
-(def font "italic 40pt Calibri")
+(def font "italic 40pt Lucidatypewriter, monospace")
 
 ; Key text offset
-(def text-x 20)
-(def text-y 50)
+(def text-x 18)
+(def text-y 55)
+
+; Keypad offset
+(def offset-x 50)
+(def offset-y 25)
 
 ; Key padding
 (def padding-x 5)

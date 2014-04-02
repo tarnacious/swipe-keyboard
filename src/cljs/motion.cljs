@@ -5,7 +5,7 @@
             [goog.net.XhrIo :as xhr]
             [swipe.tree :refer [build-tree]]
             [swipe.settings :refer [canvas-id]]
-            [cljs.core.async :refer [<! put! chan close! >!]])) 
+            [cljs.core.async :refer [<! put! chan close! >!]]))
 
 (defn listen [el type chan]
   "Binds a type of mouse event and emits the event messages on a channel. I
@@ -14,16 +14,16 @@
   (let [ dx (/ (.-width el) (.-offsetWidth el))
          dy (/ (.-height el) (.-offsetHeight el)) ]
     (events/listen el type
-      (fn[e] (do 
-        (put! chan { 
-          :type type 
-          :x (* dx (.-offsetX e)) 
+      (fn[e] (do
+        (put! chan {
+          :type type
+          :x (* dx (.-offsetX e))
           :y (* dy (.-offsetY e)) }))))))
 
 (defn bind []
-  "Creates a channel and binds several mouse events to it. Returns a new
-  channel"
-  (let [out (chan) 
+  "Creates a channel and bind several mouse events to it. Returns a tuple of
+  event keys and a new channel."
+  (let [out (chan)
         element (dom/getElement canvas-id)
         event-ids [(listen element "mousedown", out)
                    (listen element "mousemove", out)
@@ -31,6 +31,10 @@
                    (listen element "mouseout", out)]]
       [event-ids out]))
 
+(defn unbind [ids]
+  "Unbind a collection of event keys"
+  (doseq [id ids]
+    (events/unlistenByKey id)))
 
 (defn compose [in]
   "Composes sequences of mouse events (down, up and move) into a sequence of
@@ -40,14 +44,14 @@
   (go (while true
     (let [event (<! in)]
       (if (= "mousedown" (:type event))
-        (do 
+        (do
           (put! events event)
           (loop [event1 (<! in)
                  points (cons event '())]
               (put! events event1)
               (if (= (:type event1) "mousemove")
                 (recur (<! in) (cons event1 points))
-                (do 
+                (do
                   (put! swipe (reverse points)))
                 )))))))
     [events swipe]))

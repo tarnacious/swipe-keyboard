@@ -36,7 +36,7 @@
                              :compiler {:output-to "resources/public/js/worker-dev.js"
                                         :optimizations :whitespace
                                         :pretty-print true
-                                        :source-map "resources/public/worder-dev.map" }}
+                                        :source-map "resources/public/worker-dev.map" }}
                        :test {
                               :source-paths ["src/cljs" "test"]
                               :compiler {

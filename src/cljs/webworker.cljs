@@ -7,7 +7,7 @@
         read-chan (chan)
         write-chan (chan)]
     (.addEventListener worker "message"
-     #(go 
+     #(go
         (let [data (.-data %1)]
           (>! read-chan data)
         )))
@@ -17,7 +17,7 @@
     [write-chan read-chan]))
 
 (defn decode-message [channel event]
-  (let [message (.-data event)] 
+  (let [message (.-data event)]
     (put! channel message)))
 
 (defn create-client-proxy []

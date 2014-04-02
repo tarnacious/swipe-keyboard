@@ -1,26 +1,26 @@
 (ns test.tree
     (:require-macros [cemerick.cljs.test
      :refer (is deftest with-test run-tests testing test-var)])
-    (:require [cemerick.cljs.test :as t] 
-              [swipe.tree :refer [string-to-words
-                                  add-word build-tree 
+    (:require [cemerick.cljs.test :as t]
+              [swipe.tree :refer [text-to-words
+                                  add-word build-tree
                                   find-word swipe-search]]))
 
 
 (deftest test-string-to-words-1
   (let [string "one two three"
-        words (string-to-words string)]
-    (is (= words '("one" "two" "three"))))) 
+        words (text-to-words string)]
+    (is (= words '("one" "two" "three")))))
 
 (deftest test-string-to-words-2
   (let [string "one\ntwo\nthree"
-        words (string-to-words string)]
-    (is (= words '("one" "two" "three"))))) 
+        words (text-to-words string)]
+    (is (= words '("one" "two" "three")))))
 
 (deftest test-string-to-words-3
   (let [string " one  \n two\n     three"
-        words (string-to-words string)]
-    (is (= words '("one" "two" "three"))))) 
+        words (text-to-words string)]
+    (is (= words '("one" "two" "three")))))
 
 (deftest test-find-word-finds-word
   (let [tree (build-tree "one two three")]
@@ -84,7 +84,7 @@
 ; should skip intermediate letters
 (deftest swipe-search-5
   (let [tree (build-tree "one two three")]
-    (is (= (swipe-search tree ["o" "z" "y" "z" "n" "e"]) '("one"))))) 
+    (is (= (swipe-search tree ["o" "z" "y" "z" "n" "e"]) '("one")))))
 
 ; must use last character
 (deftest swipe-search-6

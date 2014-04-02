@@ -3,24 +3,75 @@
     <meta charset="utf-8" />
     <title>Swipe Demo</title>
     <style>
-        #head {
-            height: 80px;
+        body {
+            background-color: gray;
         }
+        #container {
+            width: 900px;
+            background-color: white;
+            margin: auto;
+        }
+
         #swipe-canvas {
             position: relative;
-            width: 800px;
+            width: 900px;
             height: 300px;
         }
-        #foot {
-            height: 80px;
+
+        #swipe-results {
+            font-size: 30px;
+            padding-left: 50px;
+            padding-left: 50px;
         }
+
+        #swipe-results ul {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #swipe-results li {
+            float: left;
+            background-color: #DDDDDD;
+            list-style-type: none;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+        }
+        #swipe {
+            position: relative;
+        }
+
+        #swipe-loading {
+            position: absolute;
+            height: 50px;
+            width: 250px;
+            top: 85px;
+            left: 325px;
+            background-color: darkgray;
+            border-radius: 10px;
+            text-align: center;
+            padding-top: 20px;
+            border: black;
+            border-width: 5px;
+        }
+
     </style>
 </head>
 <body>
-    <h1>Swipe Demo</h1>
-    <div id="head"></div>
-    <canvas width="800px" height="300px" id="swipe-canvas"></canvas>
-    <div id="swipe-results">
-    <div id="foot"></div>
+    <div id="container">
+        <h1>Swipe Demo</h1>
+        <p>Some text about swipey</p>
+        <div id="swipe">
+            <canvas width="900px" height="300px" id="swipe-canvas"></canvas>
+            <div id="swipe-results"></div>
+            <div style="clear: both"></div>
+            <h2 id="swipe-loading">
+                Loading
+                <noscript>Javascript is Required</noscript>
+            </h2>
+        </div>
+        <p>Some text about swipey</p>
+        <p>Some text about swipey</p>
+    </div>
     <script src="/js/main-dev.js" type="text/javascript"></script>
 </body>

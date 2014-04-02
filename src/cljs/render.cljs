@@ -2,13 +2,10 @@
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [goog.dom :as dom]
             [swipe.keypad :refer [key-values]]
-            [swipe.settings :refer [step-x step-y font 
-                                    text-x text-y 
+            [swipe.settings :refer [step-x step-y font
+                                    text-x text-y
                                     padding-x padding-y
-                                    canvas-id]])) 
-
-(defn log [s]
-  (.log js/console (str s)))
+                                    canvas-id]]))
 
 (defn render-query [results]
   (if results
@@ -25,8 +22,12 @@
     (set! (.-innerHTML results-view) (render-query results))))
 
 (defn display-str [string]
-  (let [results-view (dom/getElement "swipe-results")]
+  (let [results-view (dom/getElement "swipe-loading")]
     (set! (.-innerHTML results-view) string)))
+
+(defn hide-loading []
+  (let [results-view (dom/getElement "swipe-loading")]
+    (dom/removeNode results-view)))
 
 (defn clear-results []
   (let [results-view (dom/getElement "swipe-results")]
@@ -41,27 +42,43 @@
   (let [element (.getElementById js/document canvas-id)]
       (.getContext element "2d")))
 
-(defn draw-square [x y]
-  (let [context (get-context)]
-    (.fillRect context (- x 1) (- y 1) 2 2)))
+(defn draw-line [x1 y1 x2 y2]
+  (doto (get-context)
+    (.save)
+    (.beginPath)
+    (.moveTo x1 y1)
+    (.lineTo x2 y2)
+    (aset "lineWidth" 10)
+    (aset "lineCap" "round")
+    (.stroke)
+    (.restore)))
 
 (defn draw-letters []
   (loop [head (first key-values) tail (rest key-values)]
     (if head
-      (let [x1 (:x head) 
-            y1 (:y head) 
-            x2 (+ x1 (- step-x padding-x)) 
-            y2 (+ y1 (- step-y padding-y))]
+      (let [x (:x head)
+            y (:y head)
+            height (- step-y padding-y)
+            width (- step-x padding-x)
+            radius 15]
       (doto (get-context)
-       (aset "font" font)
-       (.fillText (:letter head) (+ x1 text-x) (+ y1 text-y))
+       (.save)
+       (aset "fillStyle" "#DDDDDD")
        (.beginPath)
-       (.moveTo x1 y1)
-       (.lineTo x2 y1)
-       (.lineTo x2 y2)
-       (.lineTo x1 y2)
-       (.lineTo x1 y1)
-       (.stroke)
+       (.moveTo (+ x radius) y)
+       (.lineTo (+ x (- width radius)) y)
+       (.quadraticCurveTo (+ x width) y (+ x width) (+ y radius))
+       (.lineTo (+ x width) (+ y (- height radius)))
+       (.quadraticCurveTo (+ x width) (+ y height) (+ x (- width radius)) (+ y height))
+       (.lineTo (+ x radius) (+ y height))
+       (.quadraticCurveTo x (+ y height) x (+ y (- height radius)))
+       (.lineTo x (+ y radius))
+       (.quadraticCurveTo x y (+ x radius) y)
+       (.closePath)
+       (.fill)
+       (aset "font" font)
+       (aset "fillStyle" "#000000")
+       (.fillText (.toUpperCase (:letter head)) (+ x text-x) (+ y text-y))
        (.restore))
        (recur (first tail) (rest tail))))))
 
@@ -69,5 +86,5 @@
   (doto (get-context)
     (.save)
     (aset "fillStyle" "white")
-    (.fillRect 0, 0, 800, 300)
+    (.fillRect 0, 0, 900, 300)
     (.restore)))
