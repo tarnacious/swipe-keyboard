@@ -14,11 +14,7 @@
 
 # Clojure REPL
 
-    $ lein repl
-    (require '[cljs.repl :as repl])
-    (require '[cljs.repl.rhino :as rhino]) 
-    (def env (rhino/repl-env)) 
-    (repl/repl env) 
+    $ lein trampoline cljsbuild repl-rhino
 
 # Run
 

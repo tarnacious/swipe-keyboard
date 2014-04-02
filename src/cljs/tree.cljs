@@ -6,51 +6,20 @@
             [cljs.core.async :refer [<! put! chan close! timeout alts! >!]])) 
 
 
-(defn col-to-map [col]
-  "Convert a collection `col` of two item vectors to a map." 
-  (loop [l col 
-         m {}]
-    (let [item (first l)]
-      (if item 
-        (recur (rest l) (assoc m (first item) (second item))) 
-        m))))
-
-(defn zipper [root] 
-  "Create a zipper of vectors for a tree of maps? I think I have got this
-  horribly wrong, it produces the result I want but does not seem an ideal use
-  of zippers and is very slow (probably converting cols to maps)"
-  (zip/zipper 
-    (fn [_] true) 
-    (fn [node] (seq (second node)))
-    (fn [node children] [(first node) (col-to-map children)])
-    root))
-
-(defn find-child [node value]
-  "So much looping through children seems crazy when the structure is maps at
-  the end. Building the tree needs be revisited."
-  (loop [child (zip/leftmost node)]
-    (if child 
-      (if (= (first (zip/node child)) value)
-        child
-        (recur (zip/right child))))))
-
 (defn add-word [root word]
-  "Adds a word to a root and returns a new root with the root included in the
-  tree and a :meta key in the final node of the path with a value :end."
-  (let [letters (.split word "")]
-    (loop [tree (zipper root)
-           lpath letters]
-      (let [value (first lpath)
-            node (zip/down tree)
-            found (find-child node value)]
-        (if value
-          (if found
-            (do
-              (recur found (rest lpath)))
-            (do 
-              (let [update (zip/append-child tree (first lpath))]
-                 (recur update lpath))))
-          (zip/root (zip/append-child tree [:meta :end])))))))
+  (loop [letters (.split word "")
+         node root]
+   (let [letter (first letters) ]
+    (if letter
+      (let [find-node (aget node letter)]
+        (if find-node
+          (recur (rest letters) find-node)
+          (let [new-node (js-obj)]
+            (aset node letter new-node)
+            (recur (rest letters) new-node))))
+      (do 
+        (aset node "meta" "end")))))
+  root)
 
 (defn string-to-words [s]
   (let [re (js/RegExp. "\\S+" "g")]
@@ -61,14 +30,15 @@
   vectors either starting with :info or :tree. The rest of the info vector
   contain progress updates and the rest of the tree value is the completed
   tree."
-  (loop [words all-words
-         tree root-tree]
+  (loop [words all-words]
     (if (first words)
-      (recur (rest words) (add-word tree (first words)))
-      tree)))
+      (do
+        (add-word root-tree (first words))
+        (recur (rest words)))))
+  root-tree)
 
 (defn build-tree [all-words]
-  (build-tree-int nil (string-to-words all-words)))
+  (build-tree-int (js-obj) (string-to-words all-words)))
 
 (defn build-tree-chan [s]
   "Build an index from a string of words. Returns a channel imediately and puts
@@ -79,7 +49,7 @@
         tree-chan (chan)]
     (go 
       (loop [words all-words
-             tree nil]
+             tree (js-obj)]
         (>! tree-chan [:info (count words) (count all-words)])
         (if (not= 0 (count words))
           (recur (drop 100 words) (build-tree-int tree (take 100 words)))
@@ -89,13 +59,14 @@
 (defn find-word [tree word]
   "Not actually used, warming up to the swipe search. Could be useful for
   testing the trees though"
-  (loop [t (second tree)
+  (loop [t tree
          w word]
-    (if tree
+    (if t 
       (let [character (first w)]
         (if character
-          (recur (get t character) (rest w))
-          (= (get t :meta) :end)))))) 
+          (recur (aget t character) (rest w))
+          (= (aget t "meta") "end")))
+      false))) 
 
 ; declare swipe-search1 to allow mutual recursing with expand search without
 ; generating warnings.
@@ -111,11 +82,11 @@
       (if (or (= (first path) letter) (= (first path) nil) (= (rest letters) '()))
         ; don't try skipping letter, we've already tried that or this is the
         ; first or last letters, which we do not allow to be skipped
-        [(swipe-search1 (get tree letter) (rest letters) (cons letter path))
-         (swipe-search1 (get tree letter) letters (cons letter path))]
+        [(swipe-search1 (aget tree letter) (rest letters) (cons letter path))
+         (swipe-search1 (aget tree letter) letters (cons letter path))]
         ; try normal, double and skip
-        [(swipe-search1 (get tree letter) (rest letters) (cons letter path))
-         (swipe-search1 (get tree letter) letters (cons letter path))
+        [(swipe-search1 (aget tree letter) (rest letters) (cons letter path))
+         (swipe-search1 (aget tree letter) letters (cons letter path))
          (swipe-search1 tree (rest letters) path)])
       ; no remaining letters, return an empty list of results 
       '())))
@@ -126,7 +97,7 @@
   keys to consume and this tree node is marked as the end of a word."
   (if (= tree nil)
     `()
-    (if (and (= (get tree :meta) :end) (= letters `())) 
+    (if (and (= (aget tree "meta") "end") (= letters `())) 
       (apply str (reverse path))
       (expand-search tree letters path))))
 
@@ -137,4 +108,4 @@
     Any key can be repeated. 
     The first and last keys must be used.
     Any" 
-  (flatten (swipe-search1 (second tree) key-sequence '())))
+  (flatten (swipe-search1 tree key-sequence '())))
