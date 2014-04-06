@@ -1,27 +1,28 @@
-## Basic stuff, so I don't forget
+A basic and fairly pointless swipe keyboard implementation. [I wrote a post
+with some explanation and demo](http://tarnbarford.net/journal/swipe).
 
-# Building 
+### Building 
 
     $ lein cljsbuild once 
 
-# Auto-building
+### Auto-building
 
     $ lein cljsbuild auto dev
 
-# Testing
+### Testing
 
     $ lein cljsbuild test
 
-# Clojure REPL
+### Clojure REPL
 
     $ lein trampoline cljsbuild repl-rhino
 
-# Run
+### Run a webserver
 
     $ lein ring server
 
 
-# Text source
+### Text sources
 
     curl http://www.gutenberg.org/cache/epub/30165/pg30165.txt > resources/public/training.txt
 
