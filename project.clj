@@ -24,6 +24,12 @@
                              :compiler {:output-to "resources/public/js/main.js"
                                         :optimizations :advanced
                                         :pretty-print true}}
+                       :prod-worker
+                            {:source-paths ["src/cljs" "src/cljs-worker"]
+                             :jar true
+                             :compiler {:output-to "resources/public/js/worker.js"
+                                        :optimizations :advanced
+                                        :pretty-print true }}
                        :dev {:source-paths ["src/cljs" "src/cljs-main"]
                              :jar true
                              :compiler {:output-to "resources/public/js/main-dev.js"
